@@ -33,8 +33,15 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body); // Log the POST request body to the console
-  res.send(generateRandomString()); // Respond with 'Ok' (we will replace this)
+  let id = generateRandomString();
+  urlDatabase[`${id}`] = req.body.longURL;
+  // console.log(req.body); // Log the POST request body to the console
+  res.redirect(`/urls/${id}`); // Redirect to the /urls/:id page
+});
+
+app.get("/u/:id", (req, res) => {
+  const longURL = urlDatabase[req.params.id];
+  res.redirect(longURL);
 });
 
 app.get("/urls/:id", (req, res) => {
