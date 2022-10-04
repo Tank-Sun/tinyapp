@@ -20,7 +20,7 @@ const urlDatabase = {
 };
 
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  res.render("homepage");
 });
 
 app.get("/urls", (req, res) => {
@@ -34,7 +34,7 @@ app.get("/urls/new", (req, res) => {
 
 app.post("/urls", (req, res) => {
   let id = generateRandomString();
-  urlDatabase[`${id}`] = req.body.longURL;
+  urlDatabase[id] = req.body.longURL;
   // console.log(req.body); // Log the POST request body to the console
   res.redirect(`/urls/${id}`); // Redirect to the /urls/:id page
 });
@@ -49,8 +49,17 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+app.post("/urls/:id", (req, res) => {
+  res.redirect(`/urls/${req.params.id}`);
+});
+
+app.post("/urls/:id/update", (req, res) => {
+  urlDatabase[req.params.id] = req.body.newLongURL;
+  res.redirect("/urls");
+});
+
 app.post("/urls/:id/delete", (req, res) => {
-  delete urlDatabase[`${req.params.id}`];
+  delete urlDatabase[req.params.id];
   res.redirect("/urls");
 });
 
