@@ -18,18 +18,26 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
-    <p><%= username %></p>
+    <% if(username){ %>
+    <p>Signed in as: <%= username %>&nbsp;</p>
+    <form class="form-inline" action="/urls/signout" method="POST">
+      <div class="form-group mb-2">
+        <button type="submit" class="btn btn-primary">Sign out</button>
+      </div>
+    </form>
+    <% } else { %>
     <form class="form-inline" action="/urls/signin" method="POST">
       <div class="form-group mb-2">
         <input
           class="form-control"
           type="text"
           name="username"
-          placeholder="username"
+          placeholder="Username"
           style="width: 300px; margin: 1em"
         />
         <button type="submit" class="btn btn-primary">Sign in</button>
       </div>
     </form>
+    <% } %>
   </nav>
 </header>
