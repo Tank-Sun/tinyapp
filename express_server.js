@@ -38,6 +38,16 @@ function generateRandomString() {
   return result;
 };
 
+function findUserByEmail(email) {
+  for (const id in users) {
+    const user = users[id];
+    if (user.email === email) {
+      return user;
+    }
+  }
+  return null;
+}
+
 app.get("/", (req, res) => {
   const id = req.cookies.user_id
   const templateVars = { user: users[id] };
@@ -49,9 +59,16 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-  const id = generateRandomString();
   const email = req.body.email;
   const password = req.body.password;
+  if (!email || !password) {
+    return res.status(400).send('please include email AND password');
+  }
+  if (findUserByEmail(email)) {
+    return res.status(400).send('email is already in use');
+  }
+
+  const id = generateRandomString();
   users[id] = {
     id,
     email,
