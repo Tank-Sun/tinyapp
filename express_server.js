@@ -56,6 +56,9 @@ app.get("/", (req, res) => {
 
 app.get("/register", (req, res) => {
   const id = req.cookies.user_id
+  if (users[id]) {
+    return res.redirect("/urls");
+  }
   const templateVars = { user: users[id] };
   res.render("register", templateVars);
 });
@@ -83,6 +86,9 @@ app.post("/register", (req, res) => {
 
 app.get("/signin", (req, res) => {
   const id = req.cookies.user_id
+  if (users[id]) {
+    return res.redirect("/urls");
+  }
   const templateVars = { user: users[id] };
   res.render("signin", templateVars);
 });
@@ -114,11 +120,18 @@ app.get("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   const id = req.cookies.user_id
+  if (!users[id]) {
+    return res.redirect("/signin");
+  }
   const templateVars = { user: users[id] };
   res.render("urls_new", templateVars);
 });
 
 app.post("/urls", (req, res) => {
+  const ID = req.cookies.user_id
+  if (!users[ID]) {
+    return res.status(401).send('Need to sign in before use');
+  }
   let id = generateRandomString();
   urlDatabase[id] = req.body.longURL;
   // console.log(req.body); // Log the POST request body to the console
@@ -132,6 +145,9 @@ app.post("/signout", (req, res) => {
 
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
+  if (!longURL) {
+    return res.status(404).send('Page not found');
+  }
   res.redirect(longURL);
 });
 
