@@ -1,6 +1,7 @@
 const express = require("express");
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
+const bcrypt = require("bcryptjs");
 const app = express();
 const PORT = 8080; // default port 8080
 
@@ -91,10 +92,11 @@ app.post("/register", (req, res) => {
   }
 
   const id = generateRandomString();
+  const hashedPassword = bcrypt.hashSync(password, 10);
   users[id] = {
     id,
     email,
-    password
+    password: hashedPassword
   };
   console.log('users', users);
   res.cookie("user_id", id);
@@ -120,8 +122,8 @@ app.post("/signin", (req, res) => {
   if (!existedUser) {
     return res.status(403).send('Wrong e-mail address');
   }
-
-  if (password !== existedUser.password) {
+  const result = bcrypt.compareSync(password, existedUser.password);
+  if (!result) {
     return res.status(403).send('Wrong password');
   }
 
