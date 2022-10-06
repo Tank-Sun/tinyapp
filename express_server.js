@@ -1,6 +1,6 @@
 const express = require("express");
 const morgan = require('morgan');
-const cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session');
 const bcrypt = require("bcryptjs");
 const app = express();
 const PORT = 8080; // default port 8080
@@ -8,7 +8,13 @@ const PORT = 8080; // default port 8080
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
-app.use(cookieParser());
+app.use(cookieSession({
+  name: 'session',
+  keys: ['JamesHarden'],
+
+  // Cookie Options
+  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+}));
 
 // database
 const urlDatabase = {
@@ -67,13 +73,13 @@ const urlsForUser = id => {
 };
 
 app.get("/", (req, res) => {
-  const id = req.cookies.user_id
+  const id = req.session.user_id;
   const templateVars = { user: users[id] };
   res.render("homepage", templateVars);
 });
 
 app.get("/register", (req, res) => {
-  const id = req.cookies.user_id
+  const id = req.session.user_id;
   if (users[id]) {
     return res.redirect("/urls");
   }
@@ -99,12 +105,12 @@ app.post("/register", (req, res) => {
     password: hashedPassword
   };
   console.log('users', users);
-  res.cookie("user_id", id);
+  req.session.user_id = id;
   res.redirect("/urls");
 });
 
 app.get("/signin", (req, res) => {
-  const id = req.cookies.user_id
+  const id = req.session.user_id;
   if (users[id]) {
     return res.redirect("/urls");
   }
@@ -127,12 +133,13 @@ app.post("/signin", (req, res) => {
     return res.status(403).send('Wrong password');
   }
 
-  res.cookie("user_id", existedUser.id);
+  // res.cookie("user_id", existedUser.id);
+  req.session.user_id = existedUser.id;
   res.redirect("/urls");
 });
 
 app.get("/urls", (req, res) => {
-  const id = req.cookies.user_id
+  const id = req.session.user_id;
   if (!users[id]) {
     return res.status(401).send('Need to sign in before use');
   }
@@ -141,7 +148,7 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  const id = req.cookies.user_id
+  const id = req.session.user_id;
   if (!users[id]) {
     return res.redirect("/signin");
   }
@@ -150,7 +157,7 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  const userID = req.cookies.user_id
+  const userID = req.session.user_id;
   if (!users[userID]) {
     return res.status(401).send('Need to sign in before access');
   }
@@ -162,7 +169,7 @@ app.post("/urls", (req, res) => {
 });
 
 app.post("/signout", (req, res) => {
-  res.clearCookie("user_id");
+  req.session = null;
   res.redirect("/");
 });
 
@@ -175,7 +182,7 @@ app.get("/u/:id", (req, res) => {
 });
 
 app.get("/urls/:id", (req, res) => {
-  const id = req.cookies.user_id
+  const id = req.session.user_id;
   if (!users[id]) {
     return res.status(401).send('Need to sign in before access');
   }
@@ -190,7 +197,7 @@ app.post("/urls/:id", (req, res) => {
   if (!urlDatabase[req.params.id]) {
     return res.status(404).send('URL do not exist');
   }
-  const id = req.cookies.user_id
+  const id = req.session.user_id;
   if (!users[id]) {
     return res.status(401).send('Unauthorized');
   }
@@ -204,7 +211,7 @@ app.post("/urls/:id/update", (req, res) => {
   if (!urlDatabase[req.params.id]) {
     return res.status(404).send('URL do not exist');
   }
-  const id = req.cookies.user_id
+  const id = req.session.user_id;
   if (!users[id]) {
     return res.status(401).send('Unauthorized');
   }
@@ -219,7 +226,7 @@ app.post("/urls/:id/delete", (req, res) => {
   if (!urlDatabase[req.params.id]) {
     return res.status(404).send('URL do not exist');
   }
-  const id = req.cookies.user_id
+  const id = req.session.user_id;
   if (!users[id]) {
     return res.status(401).send('Unauthorized');
   }
