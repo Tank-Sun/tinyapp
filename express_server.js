@@ -55,7 +55,9 @@ app.get("/", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  res.render("register");
+  const id = req.cookies.user_id
+  const templateVars = { user: users[id] };
+  res.render("register", templateVars);
 });
 
 app.post("/register", (req, res) => {
@@ -80,7 +82,28 @@ app.post("/register", (req, res) => {
 });
 
 app.get("/signin", (req, res) => {
-  res.render("signin");
+  const id = req.cookies.user_id
+  const templateVars = { user: users[id] };
+  res.render("signin", templateVars);
+});
+
+app.post("/signin", (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  const existedUser = findUserByEmail(email);
+  if (!email || !password) {
+    return res.status(400).send('please include email AND password');
+  }
+  if (!existedUser) {
+    return res.status(403).send('Wrong e-mail address');
+  }
+
+  if (password !== existedUser.password) {
+    return res.status(403).send('Wrong password');
+  }
+
+  res.cookie("user_id", existedUser.id);
+  res.redirect("/urls");
 });
 
 app.get("/urls", (req, res) => {
@@ -102,13 +125,8 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${id}`); // Redirect to the /urls/:id page
 });
 
-app.post("/signin", (req, res) => {
-  res.cookie("username", req.body.username);
-  res.redirect("/urls");
-});
-
 app.post("/signout", (req, res) => {
-  res.clearCookie("username");
+  res.clearCookie("user_id");
   res.redirect("/urls");
 });
 
