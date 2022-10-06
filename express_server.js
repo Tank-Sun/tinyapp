@@ -9,6 +9,26 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 app.use(cookieParser());
 
+// database
+const urlDatabase = {
+  "b2xVn2": "http://www.lighthouselabs.ca",
+  "9sm5xK": "http://www.google.com"
+};
+
+const users = {
+  userRandomID: {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur",
+  },
+  user2RandomID: {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk",
+  },
+};
+
+// functions
 function generateRandomString() {
   let result = '';
   let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -18,14 +38,28 @@ function generateRandomString() {
   return result;
 };
 
-const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
-};
-
 app.get("/", (req, res) => {
   const templateVars = { username: req.cookies["username"] };
   res.render("homepage", templateVars);
+});
+
+app.get("/register", (req, res) => {
+  const templateVars = { username: req.cookies["username"] };
+  res.render("register", templateVars);
+});
+
+app.post("/register", (req, res) => {
+  const id = generateRandomString();
+  const email = req.body.email;
+  const password = req.body.password;
+  users[id] = {
+    id,
+    email,
+    password
+  };
+  console.log(users);
+  res.cookie("user_id", id);
+  res.redirect("/urls");
 });
 
 app.get("/urls", (req, res) => {
@@ -45,12 +79,12 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${id}`); // Redirect to the /urls/:id page
 });
 
-app.post("/urls/signin", (req, res) => {
+app.post("/signin", (req, res) => {
   res.cookie("username", req.body.username);
   res.redirect("/urls");
 });
 
-app.post("/urls/signout", (req, res) => {
+app.post("/signout", (req, res) => {
   res.clearCookie("username");
   res.redirect("/urls");
 });
