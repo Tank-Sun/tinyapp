@@ -39,13 +39,13 @@ function generateRandomString() {
 };
 
 app.get("/", (req, res) => {
-  const templateVars = { username: req.cookies["username"] };
+  const id = req.cookies.user_id
+  const templateVars = { user: users[id] };
   res.render("homepage", templateVars);
 });
 
 app.get("/register", (req, res) => {
-  const templateVars = { username: req.cookies["username"] };
-  res.render("register", templateVars);
+  res.render("register");
 });
 
 app.post("/register", (req, res) => {
@@ -63,12 +63,14 @@ app.post("/register", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const templateVars = { username: req.cookies["username"], urls: urlDatabase };
+  const id = req.cookies.user_id
+  const templateVars = { user: users[id], urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  const templateVars = { username: req.cookies["username"] };
+  const id = req.cookies.user_id
+  const templateVars = { user: users[id] };
   res.render("urls_new", templateVars);
 });
 
@@ -95,7 +97,8 @@ app.get("/u/:id", (req, res) => {
 });
 
 app.get("/urls/:id", (req, res) => {
-  const templateVars = { username: req.cookies["username"], id: req.params.id, longURL: urlDatabase[req.params.id] };
+  const id = req.cookies.user_id
+  const templateVars = { user: users[id], id: req.params.id, longURL: urlDatabase[req.params.id] };
   res.render("urls_show", templateVars);
 });
 
