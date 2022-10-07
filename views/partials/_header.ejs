@@ -25,7 +25,7 @@
       <span class="align-middle">
         Signed in as: <%= user.email %>&nbsp;
       </span>
-      <form class="form-inline" action="/signout" method="POST">
+      <form class="form-inline" action="/signout?_method=DELETE" method="POST">
         <button type="submit" class="btn btn-secondary">Sign out</button>
       </form>
     <% } %>

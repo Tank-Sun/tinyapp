@@ -2,6 +2,7 @@ const express = require("express");
 const morgan = require('morgan');
 const cookieSession = require('cookie-session');
 const bcrypt = require("bcryptjs");
+const methodOverride = require('method-override');
 const app = express();
 const PORT = 8080;
 
@@ -13,6 +14,7 @@ app.use(cookieSession({
   keys: ['JamesHarden'],
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
+app.use(methodOverride('_method'));
 
 
 // database
@@ -92,7 +94,7 @@ app.post("/signin", (req, res) => {
 });
 
 // sign out
-app.post("/signout", (req, res) => {
+app.delete("/signout", (req, res) => {
   req.session = null;
   res.redirect("/");
 });
@@ -152,7 +154,7 @@ app.get("/urls/:id", (req, res) => {
 });
 
 // redirect to the detail page when clicking on the "edit" button on the URLs index page
-app.post("/urls/:id", (req, res) => {
+app.patch("/urls/:id", (req, res) => {
   if (!urlDatabase[req.params.id]) {
     return res.status(404).send('URL do not exist');
   }
@@ -167,7 +169,7 @@ app.post("/urls/:id", (req, res) => {
 });
 
 // update(edit) the new long URL for our short URL
-app.post("/urls/:id/update", (req, res) => {
+app.put("/urls/:id", (req, res) => {
   if (!urlDatabase[req.params.id]) {
     return res.status(404).send('URL do not exist');
   }
@@ -183,7 +185,7 @@ app.post("/urls/:id/update", (req, res) => {
 });
 
 // delete the URL when clicking the "delete" button on the URLs index page
-app.post("/urls/:id/delete", (req, res) => {
+app.delete("/urls/:id", (req, res) => {
   if (!urlDatabase[req.params.id]) {
     return res.status(404).send('URL do not exist');
   }

@@ -27,7 +27,7 @@
     </div>
     <div class="card text-center">
       <h5>Edit the URL</h5>
-      <form class="form-inline justify-content-center" action="/urls/<%= id %>/update" method="POST">
+      <form class="form-inline justify-content-center" action="/urls/<%= id %>?_method=PUT" method="POST">
         <div class="form-group mb-2">
           <label for="longURL">new URL:</label>
         </div>
