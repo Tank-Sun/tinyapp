@@ -9,7 +9,7 @@ This app is RESTful, and the security level of data on this website is strengthe
 !["URLs index of the specific user"](https://github.com/Tank-Sun/tinyapp/blob/master/docs/urls-index-page.png?raw=true)
 !["Simple home page"](https://github.com/Tank-Sun/tinyapp/blob/master/docs/home-page.png?raw=true)
 !["User register page"](https://github.com/Tank-Sun/tinyapp/blob/master/docs/register-page.png?raw=true)
-!["User sign in page"](https://github.com/Tank-Sun/tinyapp/blob/master/docs/signin-page.png?raw=true)
+!["User sign in page"](https://github.com/Tank-Sun/tinyapp/blob/master/docs/sign-in-page.png?raw=true)
 !["Add new URL page"](https://github.com/Tank-Sun/tinyapp/blob/master/docs/new-url-page.png?raw=true)
 !["Edit URL page"](https://github.com/Tank-Sun/tinyapp/blob/master/docs/edit-url-page.png?raw=true)
 
