@@ -42,35 +42,8 @@ const users = {
 };
 
 // functions
-const generateRandomString = () => {
-  let result = '';
-  let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  for ( var i = 0; i < 6; i++ ) {
-    result += characters[Math.floor(Math.random() * characters.length)];
-  }
-  return result;
-};
+const {findUserByEmail, generateRandomString, urlsForUser} = require("./helpers");
 
-const findUserByEmail = email => {
-  for (const id in users) {
-    const user = users[id];
-    if (user.email === email) {
-      return user;
-    }
-  }
-  return null;
-};
-
-const urlsForUser = id => {
-  let urls = {};
-  for (const shortURL in urlDatabase) {
-    if (urlDatabase[shortURL].userID === id) {
-      urls[shortURL] = urlDatabase[shortURL];
-    }
-  }
-  console.log('urls', urls);
-  return urls;
-};
 
 app.get("/", (req, res) => {
   const id = req.session.user_id;
@@ -93,7 +66,7 @@ app.post("/register", (req, res) => {
   if (!email || !password) {
     return res.status(400).send('please include email AND password');
   }
-  if (findUserByEmail(email)) {
+  if (findUserByEmail(email, users)) {
     return res.status(400).send('email is already in use');
   }
 
@@ -104,7 +77,6 @@ app.post("/register", (req, res) => {
     email,
     password: hashedPassword
   };
-  console.log('users', users);
   req.session.user_id = id;
   res.redirect("/urls");
 });
@@ -121,7 +93,7 @@ app.get("/signin", (req, res) => {
 app.post("/signin", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  const existedUser = findUserByEmail(email);
+  const existedUser = findUserByEmail(email, users);
   if (!email || !password) {
     return res.status(400).send('please include email AND password');
   }
@@ -143,7 +115,7 @@ app.get("/urls", (req, res) => {
   if (!users[id]) {
     return res.status(401).send('Need to sign in before use');
   }
-  const templateVars = { user: users[id], urls: urlsForUser(id) };
+  const templateVars = { user: users[id], urls: urlsForUser(id, urlDatabase) };
   res.render("urls_index", templateVars);
 });
 
@@ -164,7 +136,6 @@ app.post("/urls", (req, res) => {
   let id = generateRandomString();
   const longURL = req.body.longURL;
   urlDatabase[id] = {longURL, userID};
-  console.log("urlDatabase", urlDatabase);
   res.redirect(`/urls/${id}`); 
 });
 
@@ -186,7 +157,7 @@ app.get("/urls/:id", (req, res) => {
   if (!users[id]) {
     return res.status(401).send('Need to sign in before access');
   }
-  if (!urlsForUser(id)[req.params.id]) {
+  if (!urlsForUser(id, urlDatabase)[req.params.id]) {
     return res.status(404).send('Page not found');
   }
   const templateVars = { user: users[id], id: req.params.id, longURL: urlDatabase[req.params.id].longURL };
@@ -201,7 +172,7 @@ app.post("/urls/:id", (req, res) => {
   if (!users[id]) {
     return res.status(401).send('Unauthorized');
   }
-  if (!urlsForUser(id)[req.params.id]) {
+  if (!urlsForUser(id, urlDatabase)[req.params.id]) {
     return res.status(404).send('URL not found');
   }
   res.redirect(`/urls/${req.params.id}`);
@@ -215,7 +186,7 @@ app.post("/urls/:id/update", (req, res) => {
   if (!users[id]) {
     return res.status(401).send('Unauthorized');
   }
-  if (!urlsForUser(id)[req.params.id]) {
+  if (!urlsForUser(id, urlDatabase)[req.params.id]) {
     return res.status(404).send('URL not found');
   }
   urlDatabase[req.params.id].longURL = req.body.newLongURL;
@@ -230,7 +201,7 @@ app.post("/urls/:id/delete", (req, res) => {
   if (!users[id]) {
     return res.status(401).send('Unauthorized');
   }
-  if (!urlsForUser(id)[req.params.id]) {
+  if (!urlsForUser(id, urlDatabase)[req.params.id]) {
     return res.status(404).send('URL not found');
   }
   delete urlDatabase[req.params.id];
