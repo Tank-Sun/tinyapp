@@ -83,7 +83,7 @@ app.post("/signin", (req, res) => {
     return res.status(400).send('Please include email AND password');
   }
   if (!existedUser) {
-    return res.status(403).send('Wrong e-mail address');
+    return res.status(403).send('<html><body><p>Wrong e-mail address, <a href="/signin">sign in</a> again or go to <a href="/register">register</a>.</p></body></html>');
   }
   const result = bcrypt.compareSync(password, existedUser.password);
   if (!result) {
@@ -96,7 +96,7 @@ app.post("/signin", (req, res) => {
 // sign out
 app.delete("/signout", (req, res) => {
   req.session = null;
-  res.redirect("/");
+  res.redirect("/signin");
 });
 
 // urls index
