@@ -103,7 +103,7 @@ app.delete("/signout", (req, res) => {
 app.get("/urls", (req, res) => {
   const id = req.session.user_id;
   if (!users[id]) {
-    return res.status(401).send('Need to sign in before access');
+    return res.status(401).send(<p>Need to <a href="/signin">sign in</a> before access</p>);
   }
   const templateVars = { user: users[id], urls: urlsForUser(id, urlDatabase) };
   res.render("urls_index", templateVars);
